@@ -19,7 +19,7 @@ const elementColors = {
   FE: "#E06633", // Orange-Brown
   ZN: "#7D80B0", // Blue-Grey
   default: "#CCCCCC", // Light Grey
-}
+};
 
 // Residue type colors
 const residueColors = {
@@ -45,7 +45,7 @@ const residueColors = {
   VAL: "#0F820F", // Green
   HYP: "#DC9682", // Pink (Hydroxyproline)
   default: "#CCCCCC", // Light Grey
-}
+};
 
 // Secondary structure colors
 const ssColors = {
@@ -53,7 +53,7 @@ const ssColors = {
   E: "#FFFF00", // Sheet - Yellow
   C: "#00BFFF", // Coil/Loop - Blue
   default: "#CCCCCC", // Light Grey
-}
+};
 
 // Hydrophobicity colors (Kyte & Doolittle scale)
 const hydrophobicityColors = {
@@ -78,7 +78,7 @@ const hydrophobicityColors = {
   TYR: "#FF0000", // Red (hydrophobic)
   VAL: "#FF0000", // Red (hydrophobic)
   default: "#CCCCCC", // Light Grey
-}
+};
 
 // Charge colors
 const chargeColors = {
@@ -88,7 +88,7 @@ const chargeColors = {
   ASP: "#FF0000", // Red (negative)
   GLU: "#FF0000", // Red (negative)
   default: "#CCCCCC", // Light Grey (neutral)
-}
+};
 
 // Chain ID colors (first 10 chains)
 const chainColors = [
@@ -102,51 +102,75 @@ const chainColors = [
   "#c0392b", // Dark Red
   "#16a085", // Dark Teal
   "#8e44ad", // Dark Purple
-]
+];
+
+// Define types for elements and residues
+type Element = keyof typeof elementColors;
+type ResidueName = keyof typeof residueColors | "HYP"; // Include "HYP" for Hydroxyproline
+type SecondaryStructure = keyof typeof ssColors;
+type Hydrophobicity = keyof typeof hydrophobicityColors;
+type Charge = keyof typeof chargeColors;
+
+// Update the atom type to include chainId
+interface Atom {
+  element: Element;
+  residueName: ResidueName; // Ensure this includes all residue names
+  ss?: SecondaryStructure;
+  chainId: string; // Ensure chainId is included
+}
 
 // B-factor colors (temperature gradient)
-function getBFactorColor(bFactor) {
+function getBFactorColor(bFactor: number): string {
   // Normalize B-factor to a value between 0 and 1
   // In a real application, this would use the min/max B-factors from the structure
-  const normalizedB = Math.min(Math.max(bFactor / 100, 0), 1)
+  const normalizedB = Math.min(Math.max(bFactor / 100, 0), 1);
 
   // Create a temperature gradient from blue (cold, rigid) to red (hot, flexible)
-  const r = Math.floor(normalizedB * 255)
-  const g = 0
-  const b = Math.floor((1 - normalizedB) * 255)
+  const r = Math.floor(normalizedB * 255);
+  const g = 0;
+  const b = Math.floor((1 - normalizedB) * 255);
 
-  return `rgb(${r}, ${g}, ${b})`
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 // Get color based on the selected color scheme
-export function getColorByScheme(atom, colorScheme) {
+export function getColorByScheme(atom: Atom, colorScheme: string): string {
   switch (colorScheme) {
     case "cpk":
-      return elementColors[atom.element] || elementColors.default
+      return elementColors[atom.element] || elementColors.default;
 
     case "residueType":
-      return residueColors[atom.residueName] || residueColors.default
+      return residueColors[atom.residueName] || residueColors.default;
 
     case "secondaryStructure":
-      return ssColors[atom.ss] || ssColors.default
+      return ssColors[atom.ss || "default"] || ssColors.default;
 
     case "hydrophobicity":
-      return hydrophobicityColors[atom.residueName] || hydrophobicityColors.default
+      return (
+        hydrophobicityColors[
+          atom.residueName as keyof typeof hydrophobicityColors
+        ] || hydrophobicityColors.default
+      );
 
     case "charge":
-      return chargeColors[atom.residueName] || chargeColors.default
+      return (
+        chargeColors[atom.residueName as keyof typeof chargeColors] ||
+        chargeColors.default
+      );
 
     case "chainId":
       // Use modulo to cycle through colors for many chains
-      const chainIndex = Number.parseInt(atom.chainId) || atom.chainId.charCodeAt(0) % chainColors.length
-      return chainColors[chainIndex % chainColors.length]
+      const chainIndex =
+        Number.parseInt(atom.chainId) ||
+        atom.chainId.charCodeAt(0) % chainColors.length;
+      return chainColors[chainIndex % chainColors.length];
 
     case "bFactor":
       // This would require B-factor information from the PDB
       // For this demo, we'll use a random value
-      return getBFactorColor(Math.random() * 100)
+      return getBFactorColor(Math.random() * 100);
 
     default:
-      return "#CCCCCC"
+      return "#CCCCCC";
   }
 }

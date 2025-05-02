@@ -1,102 +1,122 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { Canvas } from "@react-three/fiber"
-import { OrbitControls, Environment, Stats } from "@react-three/drei"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Rotate3D, ZoomIn, RefreshCw, Camera, Lightbulb, Maximize2 } from "lucide-react"
-import { ProteinModel } from "./components/protein-model"
-import { ProteinInfo } from "./components/protein-info"
-import { ColorSchemeSelector } from "./components/color-scheme-selector"
-import { VisualizationControls } from "./components/visualization-controls"
-import { sampleProteins } from "./data/sample-proteins"
+import { useState, useRef, useEffect } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, Environment, Stats } from "@react-three/drei";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  Rotate3D,
+  ZoomIn,
+  RefreshCw,
+  Camera,
+  Lightbulb,
+  Maximize2,
+} from "lucide-react";
+import { ProteinModel } from "./components/protein-model";
+import { ProteinInfo } from "./components/protein-info";
+import { ColorSchemeSelector } from "./components/color-scheme-selector";
+import { VisualizationControls } from "./components/visualization-controls";
+import { sampleProteins } from "./data/sample-proteins";
 
 export default function ProteinViewer() {
-  const [pdbId, setPdbId] = useState("1cbn")
-  const [protein, setProtein] = useState(sampleProteins["1cbn"])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [visualizationMode, setVisualizationMode] = useState("cartoon")
-  const [colorScheme, setColorScheme] = useState("chainId")
-  const [quality, setQuality] = useState("medium")
-  const [showSideChains, setShowSideChains] = useState(false)
-  const [showHydrogens, setShowHydrogens] = useState(false)
-  const [showWater, setShowWater] = useState(false)
-  const [showStats, setShowStats] = useState(false)
-  const [showAxes, setShowAxes] = useState(false)
-  const [lightIntensity, setLightIntensity] = useState(1.0)
-  const [environmentPreset, setEnvironmentPreset] = useState("city")
-  const [cameraPosition, setCameraPosition] = useState([0, 0, 100])
-  const [autoRotate, setAutoRotate] = useState(false)
-  const controlsRef = useRef()
-  const canvasRef = useRef()
+  const [pdbId, setPdbId] = useState("1cbn");
+  const [protein, setProtein] = useState(sampleProteins["1cbn"]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [visualizationMode, setVisualizationMode] = useState("cartoon");
+  const [colorScheme, setColorScheme] = useState("chainId");
+  const [quality, setQuality] = useState("medium");
+  const [showSideChains, setShowSideChains] = useState(false);
+  const [showHydrogens, setShowHydrogens] = useState(false);
+  const [showWater, setShowWater] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [showAxes, setShowAxes] = useState(false);
+  const [lightIntensity, setLightIntensity] = useState(1.0);
+  const [environmentPreset, setEnvironmentPreset] = useState("city");
+  const [cameraPosition, setCameraPosition] = useState([0, 0, 100]);
+  const [autoRotate, setAutoRotate] = useState(false);
+  const controlsRef = useRef();
+  const canvasRef = useRef();
 
   // Handle PDB ID input
   const handlePdbSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!pdbId.trim()) return
+    if (!pdbId.trim()) return;
 
-    setLoading(true)
-    setError("")
+    setLoading(true);
+    setError("");
 
     try {
       // Check if it's one of our sample proteins first
       if (sampleProteins[pdbId.toLowerCase()]) {
-        setProtein(sampleProteins[pdbId.toLowerCase()])
-        setLoading(false)
-        return
+        setProtein(sampleProteins[pdbId.toLowerCase()]);
+        setLoading(false);
+        return;
       }
 
       // In a real app, we would fetch from PDB here
       // For this demo, we'll just simulate a fetch
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // If not a known sample, show error
-      setError(`Protein with PDB ID "${pdbId}" not found. Try 1cbn, 1ubq, 3eiy, 1hho, 1gfl, 4ins, 1bkv, or 6vxx.`)
+      setError(
+        `Protein with PDB ID "${pdbId}" not found. Try 1cbn, 1ubq, 3eiy, 1hho, 1gfl, 4ins, 1bkv, or 6vxx.`
+      );
     } catch (err) {
-      setError("Failed to load protein data. Please try again.")
+      setError("Failed to load protein data. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Load a sample protein
   const loadSampleProtein = (id) => {
-    setPdbId(id)
-    setProtein(sampleProteins[id])
-    setError("")
-  }
+    setPdbId(id);
+    setProtein(sampleProteins[id]);
+    setError("");
+  };
 
   // Reset camera view
   const resetView = () => {
     if (controlsRef.current) {
-      controlsRef.current.reset()
+      controlsRef.current.reset();
     }
-  }
+  };
 
   // Take a screenshot
   const takeScreenshot = () => {
     if (canvasRef.current) {
-      const link = document.createElement("a")
-      link.setAttribute("download", `${pdbId}-${visualizationMode}.png`)
-      link.setAttribute("href", canvasRef.current.toDataURL("image/png").replace("image/png", "image/octet-stream"))
-      link.click()
+      const link = document.createElement("a");
+      link.setAttribute("download", `${pdbId}-${visualizationMode}.png`);
+      link.setAttribute(
+        "href",
+        canvasRef.current
+          .toDataURL("image/png")
+          .replace("image/png", "image/octet-stream")
+      );
+      link.click();
     }
-  }
+  };
 
   // Quality settings
   const qualitySettings = {
     low: { detail: 5 },
     medium: { detail: 10 },
     high: { detail: 15 },
-  }
+  };
 
   // Environment presets
   const environmentPresets = [
@@ -110,17 +130,17 @@ export default function ProteinViewer() {
     "city",
     "park",
     "lobby",
-  ]
+  ];
 
   // Update canvas ref when the component mounts
   useEffect(() => {
     if (canvasRef.current) {
-      const canvas = canvasRef.current.querySelector("canvas")
+      const canvas = canvasRef.current.querySelector("canvas");
       if (canvas) {
-        canvasRef.current = canvas
+        canvasRef.current = canvas;
       }
     }
-  }, [])
+  }, []);
 
   return (
     <div className="container mx-auto p-4">
@@ -132,7 +152,9 @@ export default function ProteinViewer() {
           <Card className="h-full">
             <CardHeader>
               <CardTitle>Protein Explorer</CardTitle>
-              <CardDescription>Visualize and analyze protein structures</CardDescription>
+              <CardDescription>
+                Visualize and analyze protein structures
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <Tabs defaultValue="search">
@@ -166,9 +188,10 @@ export default function ProteinViewer() {
                   {error && <div className="text-sm text-red-500">{error}</div>}
 
                   <div className="text-sm text-muted-foreground">
-                    Enter a PDB ID to load a protein structure from the Protein Data Bank. For this demo, try: 1cbn
-                    (Crambin), 1ubq (Ubiquitin), 3eiy (Lysozyme), 1hho (Hemoglobin), 1gfl (GFP), 4ins (Insulin), 1bkv
-                    (Collagen), or 6vxx (SARS-CoV-2 Spike).
+                    Enter a PDB ID to load a protein structure from the Protein
+                    Data Bank. For this demo, try: 1cbn (Crambin), 1ubq
+                    (Ubiquitin), 3eiy (Lysozyme), 1hho (Hemoglobin), 1gfl (GFP),
+                    4ins (Insulin), 1bkv (Collagen), or 6vxx (SARS-CoV-2 Spike).
                   </div>
                 </TabsContent>
 
@@ -196,15 +219,27 @@ export default function ProteinViewer() {
                     <h3 className="text-sm font-medium">Rendering Options</h3>
                     <div className="flex items-center justify-between">
                       <Label htmlFor="show-stats">Show Performance Stats</Label>
-                      <Switch id="show-stats" checked={showStats} onCheckedChange={setShowStats} />
+                      <Switch
+                        id="show-stats"
+                        checked={showStats}
+                        onCheckedChange={setShowStats}
+                      />
                     </div>
                     <div className="flex items-center justify-between">
                       <Label htmlFor="show-axes">Show Coordinate Axes</Label>
-                      <Switch id="show-axes" checked={showAxes} onCheckedChange={setShowAxes} />
+                      <Switch
+                        id="show-axes"
+                        checked={showAxes}
+                        onCheckedChange={setShowAxes}
+                      />
                     </div>
                     <div className="flex items-center justify-between">
                       <Label htmlFor="auto-rotate">Auto-Rotate Model</Label>
-                      <Switch id="auto-rotate" checked={autoRotate} onCheckedChange={setAutoRotate} />
+                      <Switch
+                        id="auto-rotate"
+                        checked={autoRotate}
+                        onCheckedChange={setAutoRotate}
+                      />
                     </div>
                   </div>
 
@@ -219,7 +254,9 @@ export default function ProteinViewer() {
                         step={0.1}
                         onValueChange={(value) => setLightIntensity(value[0])}
                       />
-                      <span className="text-sm">{lightIntensity.toFixed(1)}</span>
+                      <span className="text-sm">
+                        {lightIntensity.toFixed(1)}
+                      </span>
                     </div>
                   </div>
 
@@ -229,7 +266,9 @@ export default function ProteinViewer() {
                       {environmentPresets.map((preset) => (
                         <Button
                           key={preset}
-                          variant={environmentPreset === preset ? "default" : "outline"}
+                          variant={
+                            environmentPreset === preset ? "default" : "outline"
+                          }
                           size="sm"
                           onClick={() => setEnvironmentPreset(preset)}
                         >
@@ -253,7 +292,10 @@ export default function ProteinViewer() {
                   setShowWater={setShowWater}
                 />
 
-                <ColorSchemeSelector colorScheme={colorScheme} setColorScheme={setColorScheme} />
+                <ColorSchemeSelector
+                  colorScheme={colorScheme}
+                  setColorScheme={setColorScheme}
+                />
 
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">Rendering Quality</h3>
@@ -294,16 +336,28 @@ export default function ProteinViewer() {
                 {protein.name} ({pdbId.toUpperCase()})
               </CardTitle>
               <div className="flex space-x-2">
-                <Button variant="outline" size="icon" onClick={resetView} title="Reset View">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={resetView}
+                  title="Reset View"
+                >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
-                <Button variant="outline" size="icon" onClick={takeScreenshot} title="Take Screenshot">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={takeScreenshot}
+                  title="Take Screenshot"
+                >
                   <Camera className="h-4 w-4" />
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setCameraPosition([0, 0, cameraPosition[2] * 0.8])}
+                  onClick={() =>
+                    setCameraPosition([0, 0, cameraPosition[2] * 0.8])
+                  }
                   title="Zoom In"
                 >
                   <ZoomIn className="h-4 w-4" />
@@ -312,9 +366,9 @@ export default function ProteinViewer() {
                   variant="outline"
                   size="icon"
                   onClick={() => {
-                    const canvas = canvasRef.current
+                    const canvas = canvasRef.current;
                     if (canvas && canvas.requestFullscreen) {
-                      canvas.requestFullscreen()
+                      canvas.requestFullscreen();
                     }
                   }}
                   title="Fullscreen"
@@ -338,7 +392,10 @@ export default function ProteinViewer() {
               <Canvas camera={{ position: cameraPosition, fov: 50 }}>
                 {showStats && <Stats />}
                 <ambientLight intensity={lightIntensity * 0.5} />
-                <pointLight position={[10, 10, 10]} intensity={lightIntensity} />
+                <pointLight
+                  position={[10, 10, 10]}
+                  intensity={lightIntensity}
+                />
                 <ProteinModel
                   protein={protein}
                   visualizationMode={visualizationMode}
@@ -371,5 +428,5 @@ export default function ProteinViewer() {
         </div>
       </div>
     </div>
-  )
+  );
 }
