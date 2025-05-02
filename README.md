@@ -46,14 +46,14 @@ useEffect(() => {
 }, []);
 ```
 
-## ⚙️ Protein Model
+## ⚙️ Protein Model
 The model enables you to view different versions of proteins, for example ball and stick or space filling. The visuals are created from **Three**.
 
 ## 🗒️ Protein Info
 
 This component gives a break down of details for the protein selected.
 
-## 🧪 Testing
+## 🧪 Testing
 
 `npm run test`
 
